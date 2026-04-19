@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+node_modules/
+.vercel
+.env
+.env.local
+*.log
+
+# Local working files (not published)
+_originals/
+.claude/settings.local.json
+/Logo ABG.png
+Document A4*.pdf
