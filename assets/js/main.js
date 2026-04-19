@@ -9,38 +9,41 @@
      DATA
      -------------------------------------------------------------- */
 
-  // YouTube videos pulled from https://www.youtube.com/@artbets
+  // YouTube videos from https://www.youtube.com/@artbets
+  // Order is curated: Mandrakizay → Safidy → Tamagna (user preference)
   const VIDEOS = [
     {
       id: "90nNpzhv1nM",
-      titleFallback: "Art Betsileo Gospel — MANDRAKIZAY",
+      titleFallback: "Art Betsileo Gospel — Mandrakizay",
       views: "275",
       dateKey: { fr: "il y a 3 semaines", mg: "3 herinandro lasa", en: "3 weeks ago" }
     },
     {
-      id: "x88JudAS_7M",
-      titleFallback: "Mandrakizay — Art Betsileo Gospel",
-      views: "553",
-      dateKey: { fr: "il y a 5 mois", mg: "5 volana lasa", en: "5 months ago" }
+      id: "MIJ_ZlKVljI",
+      titleFallback: "Art Betsileo Gospel — Safidy",
+      views: "1,5 k",
+      dateKey: { fr: "il y a 1 an", mg: "1 taona lasa", en: "1 year ago" }
     },
     {
-      id: "tBNSItgM3gs",
-      titleFallback: "Art Betsileo Gospel — Ny hazo fijaliana",
-      views: "469",
-      dateKey: { fr: "il y a 1 an", mg: "1 taona lasa", en: "1 year ago" }
+      id: "mroDImzh-Ec",
+      titleFallback: "Art Bet's — Tamagna",
+      views: "—",
+      dateKey: { fr: "Art Bet's", mg: "Art Bet's", en: "Art Bet's" }
     }
   ];
 
-  // Placeholder gallery — replace with real ABG photos later
+  // Gallery — real ABG photos (from _Photos / Facebook)
   const GALLERY = [
-    { src: "https://images.unsplash.com/photo-1519683109079-d5f539e1542f?auto=format&fit=crop&w=1400&q=80", alt: "Concert gospel — mains levées" },
-    { src: "https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=800&q=80", alt: "Louange en intérieur" },
-    { src: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80", alt: "Chœur sur scène" },
-    { src: "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80", alt: "Hautes Terres malgaches" },
-    { src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80", alt: "Piano & ambiance" },
-    { src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1400&q=80", alt: "Scène illuminée" },
-    { src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80", alt: "Voix solo" },
-    { src: "https://images.unsplash.com/photo-1530023367847-a683933f4172?auto=format&fit=crop&w=800&q=80", alt: "Backstage" }
+    { src: "assets/images/gallery/482221229_954895073514333_7013478271384378151_n.jpg", alt: "Art Betsileo Gospel — louange" },
+    { src: "assets/images/gallery/482208499_954895030181004_7525712971761988406_n.jpg", alt: "Art Betsileo Gospel — performance" },
+    { src: "assets/images/gallery/482212733_954895140180993_1355029969141314952_n.jpg", alt: "Art Betsileo Gospel — chorale" },
+    { src: "assets/images/gallery/482208660_954894696847704_754803377250753098_n.jpg", alt: "Art Betsileo Gospel — moment" },
+    { src: "assets/images/gallery/489020186_973516791652161_1015199791961482312_n.jpg", alt: "Art Betsileo Gospel — portrait" },
+    { src: "assets/images/gallery/608882611_1187267890277049_6131757507866268794_n.jpg", alt: "Art Betsileo Gospel — scène" },
+    { src: "assets/images/gallery/611306237_1188352500168588_3488391236789675557_n.jpg", alt: "Art Betsileo Gospel — ensemble" },
+    { src: "assets/images/gallery/607954815_1187953700208468_5119550517265565669_n.jpg", alt: "Art Betsileo Gospel — groupe" },
+    { src: "assets/images/gallery/612099777_1187955120208326_2571695570968858664_n.jpg", alt: "Art Betsileo Gospel — ensemble" },
+    { src: "assets/images/gallery/608198659_1187308810272957_6149300462057400297_n.jpg", alt: "Art Betsileo Gospel — portrait" }
   ];
 
   // Pillar & Reason icons (inline SVGs kept small)
@@ -149,10 +152,13 @@
     host.innerHTML = VIDEOS.map(v => {
       const thumb = `https://img.youtube.com/vi/${v.id}/maxresdefault.jpg`;
       const fallback = `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
+      // YouTube returns a 120x90 gray placeholder (HTTP 200) when maxresdefault is missing,
+      // so onerror never fires — we detect by natural size after load instead.
+      const onload = `if(this.naturalWidth===120){this.onload=null;this.src='${fallback}';}`;
       return `
         <a class="video-card reveal" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">
           <div class="video-card__thumb">
-            <img src="${thumb}" onerror="this.onerror=null;this.src='${fallback}';" alt="${v.titleFallback}" loading="lazy">
+            <img src="${thumb}" onload="${onload}" onerror="this.onerror=null;this.src='${fallback}';" alt="${v.titleFallback}" loading="lazy">
             <span class="video-card__play" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </span>
