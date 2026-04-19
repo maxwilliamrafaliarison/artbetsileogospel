@@ -27,8 +27,8 @@
     {
       id: "mroDImzh-Ec",
       titleFallback: "Art Bet's — Tamagna",
-      views: "—",
-      dateKey: { fr: "Art Bet's", mg: "Art Bet's", en: "Art Bet's" }
+      views: "339",
+      dateKey: { fr: "il y a 2 ans", mg: "2 taona lasa", en: "2 years ago" }
     }
   ];
 
@@ -149,6 +149,7 @@
     const host = document.getElementById("videosGrid");
     if (!host) return;
     const t = window.TRANSLATIONS[currentLang];
+    const ytLabel = currentLang === "mg" ? "Hijery ao YouTube" : currentLang === "en" ? "Open on YouTube" : "Voir sur YouTube";
     host.innerHTML = VIDEOS.map(v => {
       const thumb = `https://img.youtube.com/vi/${v.id}/maxresdefault.jpg`;
       const fallback = `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
@@ -156,12 +157,15 @@
       // so onerror never fires — we detect by natural size after load instead.
       const onload = `if(this.naturalWidth===120){this.onload=null;this.src='${fallback}';}`;
       return `
-        <a class="video-card reveal" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">
-          <div class="video-card__thumb">
+        <article class="video-card reveal">
+          <div class="video-card__thumb" data-video-id="${v.id}" role="button" tabindex="0" aria-label="${t.videos.watch} — ${v.titleFallback}">
             <img src="${thumb}" onload="${onload}" onerror="this.onerror=null;this.src='${fallback}';" alt="${v.titleFallback}" loading="lazy">
             <span class="video-card__play" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </span>
+            <a class="video-card__yt" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="${ytLabel}" title="${ytLabel}">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2C0 8 0 12 0 12s0 4 .5 5.8a3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 16 24 12 24 12s0-4-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+            </a>
           </div>
           <div class="video-card__body">
             <h3 class="video-card__title">${v.titleFallback}</h3>
@@ -176,10 +180,43 @@
               </span>
             </div>
           </div>
-        </a>
+        </article>
       `;
     }).join("");
+    bindVideoPlay(host);
     observeReveals(host);
+  }
+
+  function bindVideoPlay(root) {
+    root.querySelectorAll(".video-card__thumb[data-video-id]").forEach(thumb => {
+      const play = () => {
+        const id = thumb.getAttribute("data-video-id");
+        if (!id || thumb.dataset.playing === "1") return;
+        thumb.dataset.playing = "1";
+        // Keep the external YouTube link visible on top of the player
+        const ytLink = thumb.querySelector(".video-card__yt");
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+        iframe.title = thumb.getAttribute("aria-label") || "YouTube video player";
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.allowFullscreen = true;
+        iframe.className = "video-card__iframe";
+        iframe.setAttribute("loading", "lazy");
+        // Replace image + play button with iframe (keep the YT button)
+        thumb.querySelectorAll("img, .video-card__play").forEach(n => n.remove());
+        thumb.insertBefore(iframe, ytLink);
+      };
+      thumb.addEventListener("click", e => {
+        if (e.target.closest(".video-card__yt")) return;
+        play();
+      });
+      thumb.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          play();
+        }
+      });
+    });
   }
 
   function renderGallery() {
