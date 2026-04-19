@@ -57,6 +57,6 @@ Ou via l'interface : importer le repo GitHub sur [vercel.com/new](https://vercel
 
 ## Contact
 
-- Email : artbetsileo@gmail.com
+- Email : artbetsileogospel@gmail.com
 - WhatsApp : +261 34 96 980 76
 - Partenariats : Sonia ANDRINIRINA — +261 34 49 120 32

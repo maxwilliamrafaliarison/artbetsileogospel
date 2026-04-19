@@ -426,12 +426,14 @@
 
   /* --------------------------------------------------------------
      CONTACT FORM
-     - Default: mailto: fallback (opens user's mail client with prefilled fields)
-     - Easy upgrade: set FORMSPREE_ENDPOINT below to a Formspree / FormSubmit URL
+     - Sends real emails via FormSubmit (https://formsubmit.co) — no signup, free.
+     - First submission triggers a one-time activation email to CONTACT_EMAIL;
+       click the link inside to enable forwarding for all future messages.
+     - If FORM_ENDPOINT is cleared, falls back to a mailto: link (dev mode).
      -------------------------------------------------------------- */
 
-  const FORMSPREE_ENDPOINT = ""; // e.g. "https://formspree.io/f/xxxxxxx"
-  const CONTACT_EMAIL = "artbetsileo@gmail.com";
+  const CONTACT_EMAIL = "artbetsileogospel@gmail.com";
+  const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
 
   function initContactForm() {
     const form = document.getElementById("contactForm");
@@ -453,7 +455,7 @@
       }
 
       const raw = Object.fromEntries(new FormData(form).entries());
-      // Strip CR/LF from single-line fields to avoid mailto header injection.
+      // Strip CR/LF from single-line fields to avoid header injection.
       const data = {
         name: oneLine(raw.name),
         email: oneLine(raw.email),
@@ -465,14 +467,24 @@
       status.textContent = t.sending;
       status.className = "form-status";
 
-      if (FORMSPREE_ENDPOINT) {
+      if (FORM_ENDPOINT) {
         try {
-          const res = await fetch(FORMSPREE_ENDPOINT, {
+          const res = await fetch(FORM_ENDPOINT, {
             method: "POST",
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+              name: data.name,
+              email: data.email,
+              phone: data.phone || "—",
+              message: data.message,
+              _subject: `[ABG] ${data.subject} — ${data.name}`,
+              _replyto: data.email,
+              _template: "table",
+              _captcha: "false"
+            })
           });
-          if (!res.ok) throw new Error("Network error");
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok || json.success === "false") throw new Error(json.message || "Network error");
           status.textContent = t.success;
           status.className = "form-status is-success";
           form.reset();
