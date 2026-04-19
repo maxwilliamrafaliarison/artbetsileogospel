@@ -8,6 +8,7 @@ node_modules/
 
 # Local working files (not published)
 _originals/
+_Photos/
 .claude/settings.local.json
 /Logo ABG.png
 Document A4*.pdf
