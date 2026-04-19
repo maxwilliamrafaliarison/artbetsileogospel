@@ -60,6 +60,19 @@
   const OFFER_ICONS = [ICONS.star, ICONS.gift, ICONS.star];
 
   /* --------------------------------------------------------------
+     UTILITIES
+     -------------------------------------------------------------- */
+
+  // Escape HTML before injecting translated strings into innerHTML.
+  // Keeps renderers safe if a translator ever adds `<` or `"` in strings.
+  const ESC = /[&<>"']/g;
+  const ESC_MAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  const esc = s => String(s ?? "").replace(ESC, c => ESC_MAP[c]);
+
+  // Strip CR/LF and control chars — prevents mailto header injection.
+  const oneLine = s => String(s ?? "").replace(/[\r\n\t\v\f]+/g, " ").replace(/\s+/g, " ").trim();
+
+  /* --------------------------------------------------------------
      I18N
      -------------------------------------------------------------- */
 
@@ -68,6 +81,9 @@
   const deepGet = (obj, path) => path.split(".").reduce((o, k) => (o && k in o ? o[k] : null), obj);
 
   let currentLang = (() => {
+    // Priority: ?lang= URL param > localStorage > browser > fr
+    const url = new URLSearchParams(location.search).get("lang");
+    if (url && SUPPORTED.includes(url)) return url;
     const saved = localStorage.getItem(STORAGE_LANG);
     if (saved && SUPPORTED.includes(saved)) return saved;
     const nav = (navigator.language || "fr").slice(0, 2);
@@ -112,8 +128,8 @@
     host.innerHTML = pillars.map((p, i) => `
       <article class="pillar reveal">
         <div class="pillar__icon">${PILLAR_ICONS[i] || ICONS.art}</div>
-        <h3 class="pillar__title">${p.title}</h3>
-        <p class="pillar__body">${p.body}</p>
+        <h3 class="pillar__title">${esc(p.title)}</h3>
+        <p class="pillar__body">${esc(p.body)}</p>
       </article>
     `).join("");
     observeReveals(host);
@@ -124,8 +140,8 @@
     if (!host) return;
     host.innerHTML = stats.map(s => `
       <div class="stat">
-        <span class="stat__value">${s.value}</span>
-        <span class="stat__label">${s.label}</span>
+        <span class="stat__value">${esc(s.value)}</span>
+        <span class="stat__label">${esc(s.label)}</span>
       </div>
     `).join("");
   }
@@ -137,8 +153,8 @@
       <article class="reason reveal">
         <span class="reason__num">0${i + 1}</span>
         <div>
-          <h4 class="reason__title">${r.title}</h4>
-          <p class="reason__body">${r.body}</p>
+          <h4 class="reason__title">${esc(r.title)}</h4>
+          <p class="reason__body">${esc(r.body)}</p>
         </div>
       </article>
     `).join("");
@@ -151,32 +167,38 @@
     const t = window.TRANSLATIONS[currentLang];
     const ytLabel = currentLang === "mg" ? "Hijery ao YouTube" : currentLang === "en" ? "Open on YouTube" : "Voir sur YouTube";
     host.innerHTML = VIDEOS.map(v => {
-      const thumb = `https://img.youtube.com/vi/${v.id}/maxresdefault.jpg`;
-      const fallback = `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
+      const id = encodeURIComponent(v.id);
+      const title = esc(v.titleFallback);
+      const views = esc(v.views);
+      const date = esc(v.dateKey[currentLang]);
+      const label = esc(ytLabel);
+      const ariaPlay = esc(`${t.videos.watch} — ${v.titleFallback}`);
+      const thumb = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+      const fallback = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
       // YouTube returns a 120x90 gray placeholder (HTTP 200) when maxresdefault is missing,
       // so onerror never fires — we detect by natural size after load instead.
       const onload = `if(this.naturalWidth===120){this.onload=null;this.src='${fallback}';}`;
       return `
         <article class="video-card reveal">
-          <div class="video-card__thumb" data-video-id="${v.id}" role="button" tabindex="0" aria-label="${t.videos.watch} — ${v.titleFallback}">
-            <img src="${thumb}" onload="${onload}" onerror="this.onerror=null;this.src='${fallback}';" alt="${v.titleFallback}" loading="lazy">
+          <div class="video-card__thumb" data-video-id="${id}" role="button" tabindex="0" aria-label="${ariaPlay}">
+            <img src="${thumb}" onload="${onload}" onerror="this.onerror=null;this.src='${fallback}';" alt="${title}" loading="lazy">
             <span class="video-card__play" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </span>
-            <a class="video-card__yt" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="${ytLabel}" title="${ytLabel}">
+            <a class="video-card__yt" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer" aria-label="${label}" title="${label}">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2C0 8 0 12 0 12s0 4 .5 5.8a3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 16 24 12 24 12s0-4-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
             </a>
           </div>
           <div class="video-card__body">
-            <h3 class="video-card__title">${v.titleFallback}</h3>
+            <h3 class="video-card__title">${title}</h3>
             <div class="video-card__meta">
               <span>
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                ${v.views} ${t.videos.views}
+                ${views} ${esc(t.videos.views)}
               </span>
               <span>
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                ${v.dateKey[currentLang]}
+                ${date}
               </span>
             </div>
           </div>
@@ -196,12 +218,13 @@
         // Keep the external YouTube link visible on top of the player
         const ytLink = thumb.querySelector(".video-card__yt");
         const iframe = document.createElement("iframe");
-        iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+        iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
         iframe.title = thumb.getAttribute("aria-label") || "YouTube video player";
         iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
         iframe.allowFullscreen = true;
         iframe.className = "video-card__iframe";
         iframe.setAttribute("loading", "lazy");
+        iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
         // Replace image + play button with iframe (keep the YT button)
         thumb.querySelectorAll("img, .video-card__play").forEach(n => n.remove());
         thumb.insertBefore(iframe, ytLink);
@@ -224,7 +247,7 @@
     if (!host) return;
     host.innerHTML = GALLERY.map(g => `
       <figure class="gallery__item reveal">
-        <img src="${g.src}" alt="${g.alt}" loading="lazy">
+        <img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy">
       </figure>
     `).join("");
     observeReveals(host);
@@ -238,8 +261,8 @@
         <div class="partners__item">
           <div class="partners__item-icon">${NEED_ICONS[i] || ICONS.check}</div>
           <div>
-            <h4 class="partners__item-title">${n.title}</h4>
-            <p class="partners__item-body">${n.body}</p>
+            <h4 class="partners__item-title">${esc(n.title)}</h4>
+            <p class="partners__item-body">${esc(n.body)}</p>
           </div>
         </div>
       `).join("");
@@ -249,8 +272,8 @@
         <div class="partners__item">
           <div class="partners__item-icon">${OFFER_ICONS[i] || ICONS.star}</div>
           <div>
-            <h4 class="partners__item-title">${o.title}</h4>
-            <p class="partners__item-body">${o.body}</p>
+            <h4 class="partners__item-title">${esc(o.title)}</h4>
+            <p class="partners__item-body">${esc(o.body)}</p>
           </div>
         </div>
       `).join("");
@@ -260,7 +283,7 @@
   function renderSubjects(options) {
     const select = document.getElementById("c-subject");
     if (!select) return;
-    select.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join("");
+    select.innerHTML = options.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
   }
 
   /* --------------------------------------------------------------
@@ -373,12 +396,24 @@
       e.preventDefault();
       const t = window.TRANSLATIONS[currentLang].contact.form;
 
+      // Honeypot: if the hidden field is filled, silently drop (bots only).
+      const honeypot = form.querySelector('input[name="_gotcha"]');
+      if (honeypot && honeypot.value) return;
+
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
       }
 
-      const data = Object.fromEntries(new FormData(form).entries());
+      const raw = Object.fromEntries(new FormData(form).entries());
+      // Strip CR/LF from single-line fields to avoid mailto header injection.
+      const data = {
+        name: oneLine(raw.name),
+        email: oneLine(raw.email),
+        phone: oneLine(raw.phone || ""),
+        subject: oneLine(raw.subject || "Contact"),
+        message: String(raw.message || "").trim()
+      };
       btn.disabled = true;
       status.textContent = t.sending;
       status.className = "form-status";
@@ -399,8 +434,8 @@
           status.className = "form-status is-error";
         }
       } else {
-        // Mailto fallback
-        const subject = encodeURIComponent(`[${data.subject || "Contact"}] — ${data.name}`);
+        // Mailto fallback — all header parts are already CR/LF-stripped above.
+        const subject = encodeURIComponent(`[${data.subject}] — ${data.name}`);
         const body = encodeURIComponent(
           `Nom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || "—"}\nSujet: ${data.subject}\n\n${data.message}`
         );

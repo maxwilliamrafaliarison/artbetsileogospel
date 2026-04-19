@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://artbetsileogospel.vercel.app/sitemap.xml
