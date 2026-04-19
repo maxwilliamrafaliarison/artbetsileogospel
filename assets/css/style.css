@@ -274,11 +274,6 @@ a { color: inherit; text-decoration: none; }
   opacity: .9;
 }
 
-/* Mobile lang + CTA — hidden on desktop, shown inside mobile panel */
-.nav__mobile-lang,
-.nav__mobile-cta { display: none; }
-.lang-switch--mobile { display: none; }
-
 .nav__links {
   display: flex; align-items: center; gap: 4px;
   margin-left: auto;
@@ -372,37 +367,29 @@ a { color: inherit; text-decoration: none; }
   .nav__links a:not(.btn):hover,
   .nav__links a:not(.btn):focus-visible { background: rgba(255,255,255,.05); }
 
-  /* Hide the desktop-facing controls */
-  .lang-switch--desktop,
-  .nav__cta { display: none; }
-
-  /* Show mobile-only bits inside the dropdown */
-  .nav__mobile-lang {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+  /* When lang-switch + CTA are moved into the dropdown on mobile */
+  .nav__links > .lang-switch {
     margin: 10px 6px 6px;
     padding-top: 14px;
     border-top: 1px solid var(--glass-border);
+    background: transparent;
+    border-left: 0; border-right: 0; border-bottom: 0;
+    border-radius: 0;
+    justify-content: center;
   }
-  .nav__mobile-lang-label {
-    font-size: 10.5px;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    font-weight: 600;
-  }
-  .lang-switch--mobile { display: flex; }
-  .lang-switch--mobile button { padding: 10px 14px; font-size: 12px; min-height: 38px; }
+  .nav__links > .lang-switch button { padding: 10px 14px; font-size: 12px; min-height: 38px; }
 
-  .nav__mobile-cta {
+  .nav__links > .nav__cta {
     display: inline-flex;
     margin: 10px 6px 4px;
     justify-content: center;
     padding: 14px 22px;
     font-size: 15px;
   }
+
+  /* Hide the lang-switch + CTA from the pill on mobile — they live in the dropdown */
+  .nav__tools > .lang-switch,
+  .nav__tools > .nav__cta { display: none; }
 
   .nav__burger { display: block; }
 }

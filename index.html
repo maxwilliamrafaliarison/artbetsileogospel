@@ -192,27 +192,15 @@
         <a href="#gallery" data-i18n="nav.gallery">Galerie</a>
         <a href="#partners" data-i18n="nav.partners">Partenaires</a>
         <a href="#contact" data-i18n="nav.contact">Contact</a>
-
-        <!-- Lang switch shown inside the mobile menu panel -->
-        <div class="nav__mobile-lang">
-          <span class="nav__mobile-lang-label" aria-hidden="true">FR · MG · EN</span>
-          <div class="lang-switch lang-switch--mobile" role="group" aria-label="Langue / Fiteny / Language">
-            <button type="button" data-lang="fr" class="is-active" aria-label="Français" lang="fr">FR</button>
-            <button type="button" data-lang="mg" aria-label="Malagasy" lang="mg">MG</button>
-            <button type="button" data-lang="en" aria-label="English" lang="en">EN</button>
-          </div>
-        </div>
-
-        <a href="#event" class="btn btn--primary btn--sm nav__mobile-cta" data-i18n="nav.cta">Réserver</a>
       </nav>
 
       <div class="nav__tools">
-        <div class="lang-switch lang-switch--desktop" role="group" aria-label="Langue / Fiteny / Language">
+        <div class="lang-switch" id="langSwitch" role="group" aria-label="Langue / Fiteny / Language">
           <button type="button" data-lang="fr" class="is-active" aria-label="Français" lang="fr">FR</button>
           <button type="button" data-lang="mg" aria-label="Malagasy" lang="mg">MG</button>
           <button type="button" data-lang="en" aria-label="English" lang="en">EN</button>
         </div>
-        <a href="#event" class="btn btn--primary btn--sm nav__cta" data-i18n="nav.cta">Réserver</a>
+        <a href="#event" class="btn btn--primary btn--sm nav__cta" id="navCta" data-i18n="nav.cta">Réserver</a>
         <button class="nav__burger" id="navBurger" aria-label="Menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>

@@ -174,14 +174,10 @@
       const label = esc(ytLabel);
       const ariaPlay = esc(`${t.videos.watch} — ${v.titleFallback}`);
       const thumb = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
-      const fallback = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
-      // YouTube returns a 120x90 gray placeholder (HTTP 200) when maxresdefault is missing,
-      // so onerror never fires — we detect by natural size after load instead.
-      const onload = `if(this.naturalWidth===120){this.onload=null;this.src='${fallback}';}`;
       return `
         <article class="video-card reveal">
           <div class="video-card__thumb" data-video-id="${id}" role="button" tabindex="0" aria-label="${ariaPlay}">
-            <img src="${thumb}" onload="${onload}" onerror="this.onerror=null;this.src='${fallback}';" alt="${title}" loading="lazy">
+            <img src="${thumb}" data-video-thumb="${id}" alt="${title}" loading="lazy">
             <span class="video-card__play" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </span>
@@ -205,8 +201,35 @@
         </article>
       `;
     }).join("");
+    bindVideoThumbs(host);
     bindVideoPlay(host);
     observeReveals(host);
+  }
+
+  // Attach load/error handlers in JS (not inline) so the CSP script-src 'self'
+  // policy on Vercel doesn't strip them. maxresdefault is missing for some
+  // videos: either 404 (error) or a 120×90 gray placeholder (load) — both
+  // need to fall back to hqdefault.
+  function bindVideoThumbs(root) {
+    root.querySelectorAll("img[data-video-thumb]").forEach(img => {
+      const id = img.getAttribute("data-video-thumb");
+      const fallback = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+      let swapped = false;
+      const swap = () => {
+        if (swapped) return;
+        swapped = true;
+        img.src = fallback;
+      };
+      img.addEventListener("error", swap, { once: true });
+      img.addEventListener("load", () => {
+        if (!swapped && img.naturalWidth === 120) swap();
+      }, { once: true });
+      // If the request already finished (cached) before listeners attached,
+      // catch it now.
+      if (img.complete) {
+        if (img.naturalWidth === 0 || img.naturalWidth === 120) swap();
+      }
+    });
   }
 
   function bindVideoPlay(root) {
@@ -335,19 +358,43 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
 
+    // Move the lang-switch + CTA between the desktop pill (.nav__tools) and
+    // the mobile dropdown (.nav__links) so we keep a single copy of each.
+    const tools = nav.querySelector(".nav__tools");
+    const links = nav.querySelector(".nav__links");
+    const langSwitch = document.getElementById("langSwitch");
+    const cta = document.getElementById("navCta");
+    const MOBILE_MQ = window.matchMedia("(max-width: 980px)");
+
+    function positionControls() {
+      if (!tools || !links || !langSwitch || !cta || !burger) return;
+      if (MOBILE_MQ.matches) {
+        if (langSwitch.parentElement !== links) links.appendChild(langSwitch);
+        if (cta.parentElement !== links) links.appendChild(cta);
+      } else {
+        if (langSwitch.parentElement !== tools) tools.insertBefore(langSwitch, burger);
+        if (cta.parentElement !== tools) tools.insertBefore(cta, burger);
+      }
+    }
+    positionControls();
+    MOBILE_MQ.addEventListener("change", positionControls);
+
+    const closeMenu = () => {
+      nav.classList.remove("is-open");
+      if (burger) burger.setAttribute("aria-expanded", "false");
+    };
+
     if (burger) {
       burger.addEventListener("click", () => {
         const open = nav.classList.toggle("is-open");
         burger.setAttribute("aria-expanded", String(open));
       });
-      // Close nav on link click
-      nav.querySelectorAll(".nav__links a").forEach(a => {
-        a.addEventListener("click", () => {
-          nav.classList.remove("is-open");
-          burger.setAttribute("aria-expanded", "false");
-        });
-      });
     }
+    // Close nav on link or CTA click inside the dropdown
+    nav.addEventListener("click", (e) => {
+      const link = e.target.closest(".nav__links a");
+      if (link) closeMenu();
+    });
   }
 
   /* --------------------------------------------------------------
