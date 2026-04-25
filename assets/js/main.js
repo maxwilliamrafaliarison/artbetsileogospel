@@ -46,15 +46,14 @@
     { src: "assets/images/gallery/608198659_1187308810272957_6149300462057400297_n.jpg", alt: "Art Betsileo Gospel — portrait" }
   ];
 
-  // Inline icons. Pillars keep their original glyphs; partners' Needs/Offers
-  // use Phosphor-style line icons (regular weight, 24×24, stroke 1.5,
-  // round caps/joins) so each card carries a distinct, immediately readable
-  // visual cue.
+  // Inline icons — all Phosphor-style line icons (24×24, stroke 1.5, round
+  // caps/joins) so the whole site speaks one visual language. Each card
+  // carries a distinct, immediately readable glyph.
   const ICONS = {
-    // Pillars
-    art: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v9m0 0a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 3l7 2v6"/></svg>',
-    youth: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
-    love: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>',
+    // Pillars (About section)
+    musicNotes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="17.5" r="2.4"/><circle cx="17" cy="15" r="2.4"/><path d="M8.6 17.5V5.4l10.8-2v11.6"/><path d="M8.6 8.6l10.8-2"/></svg>',
+    plant: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10"/><path d="M12 13C7.6 13 4 9.4 4 5c4.4 0 8 3.6 8 8z"/><path d="M12 13c4.4 0 8-3.6 8-8-4.4 0-8 3.6-8 8z"/><path d="M5.5 21h13"/></svg>',
+    handHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.8 9.4l-1.4-1.3a1.7 1.7 0 0 1 0-2.4 1.7 1.7 0 0 1 2.4 0l1 1 1-1a1.7 1.7 0 0 1 2.4 0 1.7 1.7 0 0 1 0 2.4l-1.5 1.5"/><path d="M3.2 14.2l3-1.2 4.5 1.5 5-1 5.5 1.5c.9.3 1 1.6.1 2L13.5 20a3 3 0 0 1-2.5 0L3.2 17v-2.8z"/></svg>',
 
     // Phosphor-style — Needs
     usersThree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.2"/><path d="M6.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="4.6" cy="10" r="2.3"/><path d="M2.2 18c0-1.9 1.1-3.4 2.9-3.4"/><circle cx="19.4" cy="10" r="2.3"/><path d="M21.8 18c0-1.9-1.1-3.4-2.9-3.4"/></svg>',
@@ -66,7 +65,7 @@
     storefront: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.2L5 4.5h14l1.5 4.7"/><path d="M4.5 9.2v10.3h15V9.2"/><path d="M3.5 9.2c0 1.6 1.2 2.9 2.7 2.9s2.7-1.3 2.7-2.9c0 1.6 1.2 2.9 2.7 2.9s2.7-1.3 2.7-2.9c0 1.6 1.2 2.9 2.7 2.9s2.7-1.3 2.7-2.9"/><path d="M10 19.5v-5.6h4v5.6"/></svg>',
     crown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.2l2.7 9.1h11.6l2.7-9.1-5 3.4L12 5.2l-3.5 6.4z"/><circle cx="3.5" cy="8.2" r=".9"/><circle cx="20.5" cy="8.2" r=".9"/><circle cx="12" cy="4" r=".9"/><path d="M6.5 20.5h11"/></svg>'
   };
-  const PILLAR_ICONS = [ICONS.art, ICONS.youth, ICONS.love];
+  const PILLAR_ICONS = [ICONS.musicNotes, ICONS.plant, ICONS.handHeart];
   const NEED_ICONS = [ICONS.usersThree, ICONS.megaphone, ICONS.ticket];
   const OFFER_ICONS = [ICONS.sparkle, ICONS.storefront, ICONS.crown];
 
@@ -164,7 +163,7 @@
     if (!host) return;
     host.innerHTML = pillars.map((p, i) => `
       <article class="pillar reveal">
-        <div class="pillar__icon">${PILLAR_ICONS[i] || ICONS.art}</div>
+        <div class="pillar__icon">${PILLAR_ICONS[i] || ICONS.musicNotes}</div>
         <h3 class="pillar__title">${esc(p.title)}</h3>
         <p class="pillar__body">${esc(p.body)}</p>
       </article>
