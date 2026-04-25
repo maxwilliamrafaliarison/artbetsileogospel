@@ -820,19 +820,28 @@ a { color: inherit; text-decoration: none; }
   padding: 18px 0;
   border-top: 1px solid var(--glass-border);
   display: flex; gap: 16px;
+  transition: transform .35s var(--ease);
 }
 .partners__item:first-child { border-top: 0; padding-top: 0; }
+.partners__item:hover .partners__item-icon {
+  border-color: rgba(255, 180, 20, .55);
+  background: linear-gradient(135deg, rgba(255, 180, 20, .22), rgba(255, 100, 20, .08));
+  box-shadow: 0 8px 18px -10px rgba(255, 180, 20, .55);
+  transform: translateY(-1px);
+}
 .partners__item-icon {
   flex-shrink: 0;
-  width: 36px; height: 36px;
-  border-radius: 10px;
+  width: 40px; height: 40px;
+  border-radius: 12px;
   display: grid; place-items: center;
-  background: rgba(255, 180, 20, .12);
+  background: linear-gradient(135deg, rgba(255, 180, 20, .14), rgba(255, 180, 20, .04));
+  border: 1px solid rgba(255, 180, 20, .22);
   color: var(--gold);
+  transition: background .35s var(--ease), border-color .35s var(--ease), transform .35s var(--ease), box-shadow .35s var(--ease);
 }
-.partners__item-icon svg { width: 18px; height: 18px; }
-.partners__item-title { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--ink-0); }
-.partners__item-body { margin: 0; font-size: 14px; color: var(--ink-2); }
+.partners__item-icon svg { width: 20px; height: 20px; }
+.partners__item-title { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--ink-0); letter-spacing: -0.005em; }
+.partners__item-body { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
 
 /* -------- CONTACT -------- */
 .contact__grid {
@@ -1093,6 +1102,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--gold);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.005em;
+  white-space: nowrap;
 }
 .budget-reveal__chevron {
   width: 11px; height: 8px;
@@ -1121,12 +1131,31 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 620px) {
   .budget-reveal { display: block; text-align: center; }
-  .budget-reveal__summary { width: 100%; justify-content: space-between; padding: 12px 16px; }
-  .budget-reveal__intro { font-size: 10.5px; }
-  .budget-reveal__amount { font-size: 16px; }
+  .budget-reveal__summary {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+  .budget-reveal__intro { font-size: 10.5px; line-height: 1.3; }
+  .budget-reveal__amount { font-size: 15px; }
   .menu-list__name { font-size: 15px; }
   .menu-list__price { font-size: 13px; }
   .check-pill { font-size: 12.5px; padding: 8px 12px; }
+}
+
+/* Very narrow phones — let the amount sit on its own line so it never truncates */
+@media (max-width: 420px) {
+  .budget-reveal__summary {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: 18px;
+    gap: 6px;
+    padding: 14px 18px;
+  }
+  .budget-reveal__intro { letter-spacing: .12em; }
+  .budget-reveal__chevron { margin-top: 2px; }
 }
 
 /* -------- FOOTER -------- */

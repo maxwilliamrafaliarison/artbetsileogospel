@@ -117,14 +117,14 @@ const TRANSLATIONS = {
       needs: [
         {
           title: "Accueillir nos invités",
-          body: "Transport sécurisé, hébergement digne et restauration chaleureuse pour le groupe JAW'S Band."
+          body: "Transport sécurisé, hébergement digne et restauration chaleureuse pour JAW'S Band."
         },
         {
-          title: "Faire résonner le « tam-tam » dans toute la ville",
-          body: "Affichage urbain, passages radio et présence digitale percutante à travers Fianarantsoa."
+          title: "Le « Tam-Tam » dans toute la ville",
+          body: "Affichage urbain, passages radio et présence digitale percutante."
         },
         {
-          title: "Gérer la billetterie",
+          title: "La gestion des billets",
           body: "Partenaires stratégiques pour devenir points de vente officiels."
         }
       ],
@@ -132,11 +132,11 @@ const TRANSLATIONS = {
       offers: [
         {
           title: "De la visibilité avec du cœur",
-          body: "Votre logo sur toutes nos affiches, banderoles et réseaux sociaux. Un Reel vidéo créé spécialement pour vous. Roll-ups sur scène et remerciements publics."
+          body: "Logo présent sur affiches, banderoles et réseaux sociaux. Un Reel vidéo créé spécialement pour vous. Roll-ups sur scène et remerciements publics."
         },
         {
           title: "Un espace pour vous",
-          body: "Un stand pour faire découvrir vos produits ou services (restauration, boissons, services)."
+          body: "Stand pour faire découvrir vos produits ou services (restauration, boissons, services)."
         },
         {
           title: "Une place d'honneur",
@@ -312,30 +312,30 @@ const TRANSLATIONS = {
       needs: [
         {
           title: "Handray ireo vahiny",
-          body: "Fitaterana voaaro, fonenana mendrika ary sakafo mafana ho an'ny tarika JAW'S Band."
+          body: "Fitaterana azo antoka, fonenana mendrika ary sakafo mafana ho an'ny JAW'S Band."
         },
         {
-          title: "Hampanakoako ny hafatra manerana ny tanàna",
-          body: "Fampielezana manerana ny tanàna, amin'ny alalan'ny onjam-peo sy ny fisiana an-tserasera mahery vaika."
+          title: "« Tam-Tam » manerana ny tanàna",
+          body: "Peta-drindrina, onjam-peo ary fisiana an-tserasera mahery vaika."
         },
         {
-          title: "Hitantana ny tapakila",
-          body: "Mpiara-miasa manan-danja ho toerana fivarotana ofisialy."
+          title: "Fitantanana ny tapakila",
+          body: "Mpiara-miasa stratejika ho toerana fivarotana ofisialy."
         }
       ],
       offers_title: "Izay omenay anareo",
       offers: [
         {
           title: "Fahitana am-pitiavana",
-          body: "Ny logonareo hipetraka amin'ny peta-drindrina rehetra, banderoles, ary tambajotra sosialy. Horonan-tsary Reel vita manokana ho anareo. Roll-ups eny an-dampihazo sy fisaorana ampahibemaso."
+          body: "Logo amin'ny peta-drindrina, banderoles ary tambajotra sosialy. Horonan-tsary Reel vita manokana ho anareo. Roll-ups eny an-dampihazo sy fisaorana ampahibemaso."
         },
         {
           title: "Toerana ho anareo",
-          body: "Tobim-pivarotana hampirisihana ny vokatrareo na serivisy (sakafo, zava-pisotro, serivisy)."
+          body: "Tobim-pivarotana hampirisihana ny vokatra na serivisy (sakafo, zava-pisotro, serivisy)."
         },
         {
           title: "Toerana manetriketrika",
-          body: "Fanasana VIP miisa 2 hiaraka aminay amin'ity fotoana manohina ity."
+          body: "Fanasana VIP miisa 2 hiarahana mizara ity fotoana manohina ity."
         }
       ],
       cta: "Te ho mpiara-miombon'antoka aho"
@@ -510,11 +510,11 @@ const TRANSLATIONS = {
           body: "Safe travel, dignified housing and warm meals for JAW'S Band."
         },
         {
-          title: "Spread the word across town",
+          title: "The \"Tam-Tam\" across town",
           body: "City-wide billboards, radio spots and a striking digital presence."
         },
         {
-          title: "Handle ticketing",
+          title: "Ticketing management",
           body: "Strategic partners to become official points of sale."
         }
       ],
@@ -522,15 +522,15 @@ const TRANSLATIONS = {
       offers: [
         {
           title: "Visibility with heart",
-          body: "Your logo on all our posters, banners and social media. A custom Reel made just for you. Roll-ups on stage and public thanks."
+          body: "Logo on all our posters, banners and social media. A custom Reel made just for you. Roll-ups on stage and public thanks."
         },
         {
           title: "A space of your own",
-          body: "A booth to showcase your products or services (catering, drinks, services)."
+          body: "Booth to showcase your products or services (catering, drinks, services)."
         },
         {
           title: "A place of honor",
-          body: "2 VIP invitations to experience this emotional moment with us."
+          body: "2 VIP invitations to share this emotional moment with us."
         }
       ],
       cta: "Become a partner"
