@@ -130,6 +130,29 @@
     renderSubjects(t.contact.form.subject_options);
     renderPartnershipChecks(t.contact.form.partnership_options);
     renderTicketMenu(t.contact.form.tickets_tiers);
+    renderCountries();
+    renderWhatsApp(t.whatsapp);
+  }
+
+  // Populate the country-code <select> exactly once. The list itself is
+  // language-agnostic so we don't re-render on language change.
+  function renderCountries() {
+    const sel = document.getElementById("c-country");
+    if (!sel || sel.children.length) return;
+    sel.innerHTML = COUNTRIES.map(c =>
+      `<option value="${esc(c.code)}" data-min="${c.min}" data-max="${c.max}"${c.code === "+261" ? " selected" : ""}>${c.flag} ${esc(c.code)}</option>`
+    ).join("");
+  }
+
+  // Update the floating WhatsApp button: tooltip text + pre-filled message
+  // get refreshed on every language switch so the deep link stays in sync.
+  function renderWhatsApp(wa) {
+    const fab = document.getElementById("whatsappFab");
+    if (!fab || !wa) return;
+    fab.href = `https://wa.me/261349698076?text=${encodeURIComponent(wa.prefill)}`;
+    fab.setAttribute("aria-label", wa.tooltip);
+    const tip = fab.querySelector(".whatsapp-fab__tooltip");
+    if (tip) tip.textContent = wa.tooltip;
   }
 
   /* --------------------------------------------------------------
@@ -321,6 +344,33 @@
   // never break the conditional panels below the select.
   const SUBJECT_KEYS = ["info", "partnership", "tickets", "invitation", "other"];
 
+  // Curated country list for the phone country-code picker. `min`/`max` are
+  // the expected number of *digits* in the national subscriber number (after
+  // dropping any leading 0). Madagascar is first because that's the primary
+  // audience.
+  const COUNTRIES = [
+    { code: "+261", flag: "🇲🇬", name: "Madagascar",       min: 9,  max: 9  },
+    { code: "+33",  flag: "🇫🇷", name: "France",           min: 9,  max: 9  },
+    { code: "+1",   flag: "🇨🇦", name: "Canada / USA",     min: 10, max: 10 },
+    { code: "+32",  flag: "🇧🇪", name: "Belgique",         min: 8,  max: 9  },
+    { code: "+41",  flag: "🇨🇭", name: "Suisse",           min: 9,  max: 9  },
+    { code: "+44",  flag: "🇬🇧", name: "Royaume-Uni",      min: 10, max: 10 },
+    { code: "+49",  flag: "🇩🇪", name: "Allemagne",        min: 10, max: 11 },
+    { code: "+39",  flag: "🇮🇹", name: "Italie",           min: 9,  max: 11 },
+    { code: "+34",  flag: "🇪🇸", name: "Espagne",          min: 9,  max: 9  },
+    { code: "+225", flag: "🇨🇮", name: "Côte d'Ivoire",    min: 8,  max: 10 },
+    { code: "+221", flag: "🇸🇳", name: "Sénégal",          min: 9,  max: 9  },
+    { code: "+243", flag: "🇨🇩", name: "RD Congo",         min: 9,  max: 9  },
+    { code: "+237", flag: "🇨🇲", name: "Cameroun",         min: 9,  max: 9  },
+    { code: "+230", flag: "🇲🇺", name: "Maurice",          min: 8,  max: 8  },
+    { code: "+27",  flag: "🇿🇦", name: "Afrique du Sud",   min: 9,  max: 9  },
+    { code: "+212", flag: "🇲🇦", name: "Maroc",            min: 9,  max: 9  },
+    { code: "+216", flag: "🇹🇳", name: "Tunisie",          min: 8,  max: 8  }
+  ];
+
+  // RFC-5322-compatible enough for client-side gating.
+  const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
   // Format an integer Ariary amount with thin spaces (10000 → "10 000 Ar").
   // Uses a U+202F NARROW NO-BREAK SPACE so the price never wraps mid-number.
   function formatAr(n) {
@@ -372,18 +422,22 @@
         <span class="menu-list__name">${esc(tier.name)}</span>
         <span class="menu-list__leader" aria-hidden="true"></span>
         <span class="menu-list__price">${esc(formatAr(tier.price))}</span>
-        <input
-          class="menu-list__qty"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          max="50"
-          step="1"
-          value="0"
-          name="ticket_${i}"
-          data-tier-name="${esc(tier.name)}"
-          data-tier-price="${tier.price}"
-          aria-label="${esc(tier.name)}">
+        <div class="qty-stepper">
+          <button type="button" class="qty-stepper__btn" data-action="dec" aria-label="−">−</button>
+          <input
+            class="qty-stepper__input menu-list__qty"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            max="50"
+            step="1"
+            value="0"
+            name="ticket_${i}"
+            data-tier-name="${esc(tier.name)}"
+            data-tier-price="${tier.price}"
+            aria-label="${esc(tier.name)}">
+          <button type="button" class="qty-stepper__btn" data-action="inc" aria-label="+">+</button>
+        </div>
       </li>
     `).join("");
     updateTicketTotal();
@@ -551,7 +605,9 @@
       const checked = Array.from(form.querySelectorAll('input[name="partnership_type"]:checked'))
         .map(i => oneLine(i.value));
       if (checked.length) {
-        out.details.partnership_types = checked;
+        // Send as a single comma-joined string — FormSubmit's table template
+        // renders flat strings cleanly while arrays sometimes get mangled.
+        out.details["Soutien souhaité"] = checked.join(", ");
         out.lines.push(`Soutien souhaité : ${checked.join(" · ")}`);
       }
     }
@@ -569,13 +625,88 @@
         }
       });
       if (picks.length) {
-        out.details.ticket_selection = picks;
-        out.details.ticket_total = formatAr(total);
+        out.details["Billets"] = picks.join(", ");
+        out.details["Total estimé"] = formatAr(total);
         out.lines.push(`Billets : ${picks.join(" + ")}`);
         out.lines.push(`Total estimé : ${formatAr(total)}`);
       }
     }
     return out;
+  }
+
+  // Per-field validators. Returns "" when valid, error message key otherwise.
+  function validateField(name, val, form) {
+    const t = window.TRANSLATIONS[currentLang].contact.form.errors;
+    switch (name) {
+      case "name":
+        return val.trim().length >= 2 ? "" : t.name;
+      case "email":
+        return EMAIL_RE.test(val.trim()) ? "" : t.email;
+      case "subject":
+        return val ? "" : t.subject;
+      case "message":
+        return val.trim().length >= 5 ? "" : t.message;
+      case "phone": {
+        if (!val.trim()) return ""; // phone is optional
+        const sel = form.querySelector("#c-country");
+        const opt = sel && sel.selectedOptions[0];
+        if (!opt) return "";
+        const min = parseInt(opt.dataset.min, 10);
+        const max = parseInt(opt.dataset.max, 10);
+        const digits = val.replace(/\D/g, "");
+        return digits.length >= min && digits.length <= max ? "" : t.phone;
+      }
+      default:
+        return "";
+    }
+  }
+
+  function showFieldError(form, name, msg) {
+    const wrap = form.querySelector(`[data-field="${name}"]`);
+    const small = form.querySelector(`[data-error-for="${name}"]`);
+    if (!wrap) return;
+    if (msg) {
+      wrap.classList.add("is-invalid");
+      if (small) small.textContent = msg;
+    } else {
+      wrap.classList.remove("is-invalid");
+      if (small) small.textContent = "";
+    }
+  }
+
+  // Run validation across all fields. Optionally also enforces "at least
+  // one ticket" when the Réservation panel is the active subject.
+  function validateForm(form) {
+    const t = window.TRANSLATIONS[currentLang].contact.form.errors;
+    const fields = [
+      ["name",    form.querySelector("#c-name").value],
+      ["email",   form.querySelector("#c-email").value],
+      ["phone",   form.querySelector("#c-phone").value],
+      ["subject", form.querySelector("#c-subject").value],
+      ["message", form.querySelector("#c-message").value]
+    ];
+    let firstInvalid = null;
+    fields.forEach(([name, val]) => {
+      const err = validateField(name, val, form);
+      showFieldError(form, name, err);
+      if (err && !firstInvalid) firstInvalid = name;
+    });
+    // Subject-specific extra: if "tickets" picked, require at least one qty > 0.
+    const sel = form.querySelector("#c-subject");
+    const key = sel && sel.selectedOptions[0] ? sel.selectedOptions[0].dataset.key : "";
+    if (key === "tickets") {
+      const anyQty = Array.from(form.querySelectorAll(".menu-list__qty"))
+        .some(i => (parseInt(i.value, 10) || 0) > 0);
+      const status = document.getElementById("formStatus");
+      if (!anyQty) {
+        if (status) {
+          status.textContent = t.empty_tickets;
+          status.className = "form-status is-error";
+        }
+        if (!firstInvalid) firstInvalid = "subject";
+      }
+    }
+    return firstInvalid;
   }
 
   function initContactForm() {
@@ -586,13 +717,49 @@
 
     // Toggle the conditional Partenariat / Réservation panel on subject change.
     const subjectSelect = document.getElementById("c-subject");
-    if (subjectSelect) subjectSelect.addEventListener("change", syncSubjectExtra);
+    if (subjectSelect) subjectSelect.addEventListener("change", () => {
+      syncSubjectExtra();
+      showFieldError(form, "subject", "");
+    });
 
-    // Live total update for ticket quantity inputs (event delegation so it
-    // survives language switches that re-render the menu).
+    // Live total update + stepper buttons (delegated so they survive
+    // language switches that re-render the menu).
     const ticketHost = document.getElementById("ticketMenu");
-    if (ticketHost) ticketHost.addEventListener("input", e => {
-      if (e.target.classList.contains("menu-list__qty")) updateTicketTotal();
+    if (ticketHost) {
+      ticketHost.addEventListener("input", e => {
+        if (e.target.classList.contains("menu-list__qty")) updateTicketTotal();
+      });
+      ticketHost.addEventListener("click", e => {
+        const btn = e.target.closest(".qty-stepper__btn");
+        if (!btn) return;
+        const input = btn.parentElement.querySelector(".menu-list__qty");
+        if (!input) return;
+        const cur = Math.max(0, parseInt(input.value, 10) || 0);
+        const max = parseInt(input.max, 10) || 50;
+        const next = btn.dataset.action === "inc" ? Math.min(max, cur + 1) : Math.max(0, cur - 1);
+        input.value = next;
+        updateTicketTotal();
+      });
+    }
+
+    // Phone: keep only digits and spaces in the national input — country
+    // code is selected separately via the dropdown.
+    const phoneInput = form.querySelector("#c-phone");
+    if (phoneInput) {
+      phoneInput.addEventListener("input", () => {
+        const cleaned = phoneInput.value.replace(/[^\d\s]/g, "");
+        if (cleaned !== phoneInput.value) phoneInput.value = cleaned;
+        showFieldError(form, "phone", "");
+      });
+    }
+    const countrySel = form.querySelector("#c-country");
+    if (countrySel) countrySel.addEventListener("change", () => showFieldError(form, "phone", ""));
+
+    // Clear the per-field error as soon as the user touches the field again.
+    ["name", "email", "message"].forEach(name => {
+      const wrap = form.querySelector(`[data-field="${name}"]`);
+      if (!wrap) return;
+      wrap.addEventListener("input", () => showFieldError(form, name, ""));
     });
 
     form.addEventListener("submit", async e => {
@@ -603,19 +770,29 @@
       const honeypot = form.querySelector('input[name="_gotcha"]');
       if (honeypot && honeypot.value) return;
 
-      if (!form.checkValidity()) {
-        form.reportValidity();
+      // Custom validation — runs before native checkValidity so we can show
+      // localized inline messages. Block + scroll to first invalid field.
+      const firstInvalid = validateForm(form);
+      if (firstInvalid) {
+        const target = form.querySelector(`[data-field="${firstInvalid}"] input,
+                                          [data-field="${firstInvalid}"] select,
+                                          [data-field="${firstInvalid}"] textarea`);
+        if (target && typeof target.focus === "function") target.focus({ preventScroll: false });
         return;
       }
 
-      const raw = Object.fromEntries(new FormData(form).entries());
+      // Compose the full international phone (country code + national digits).
+      const countryCode = countrySel ? countrySel.value : "";
+      const phoneLocal = phoneInput ? phoneInput.value.replace(/\s+/g, " ").trim() : "";
+      const fullPhone = phoneLocal ? `${countryCode} ${phoneLocal}` : "";
+
       // Strip CR/LF from single-line fields to avoid header injection.
       const data = {
-        name: oneLine(raw.name),
-        email: oneLine(raw.email),
-        phone: oneLine(raw.phone || ""),
-        subject: oneLine(raw.subject || "Contact"),
-        message: String(raw.message || "").trim()
+        name: oneLine(form.querySelector("#c-name").value),
+        email: oneLine(form.querySelector("#c-email").value),
+        phone: oneLine(fullPhone),
+        subject: oneLine(form.querySelector("#c-subject").value || "Contact"),
+        message: String(form.querySelector("#c-message").value || "").trim()
       };
 
       // Pull conditional extras (partnership types, ticket quantities) and
@@ -631,30 +808,45 @@
 
       if (FORM_ENDPOINT) {
         try {
+          // Build a clean JSON payload. Keys are intentionally in French —
+          // FormSubmit's "table" template uses them verbatim as row labels,
+          // so the email lands looking like a polished receipt.
+          const payload = {
+            "Nom": data.name,
+            "Email": data.email,
+            "Téléphone": data.phone || "—",
+            "Sujet": data.subject,
+            ...extras.details,
+            "Message": enrichedMessage,
+            // FormSubmit reserved keys
+            _subject: `[ABG] ${data.subject} — ${data.name}`,
+            _replyto: data.email,
+            _template: "table",
+            _captcha: "false",
+            _autoresponse: t.autoresponse
+          };
           const res = await fetch(FORM_ENDPOINT, {
             method: "POST",
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: data.name,
-              email: data.email,
-              phone: data.phone || "—",
-              message: enrichedMessage,
-              ...extras.details,
-              _subject: `[ABG] ${data.subject} — ${data.name}`,
-              _replyto: data.email,
-              _template: "table",
-              _captcha: "false"
-            })
+            body: JSON.stringify(payload)
           });
           const json = await res.json().catch(() => ({}));
-          if (!res.ok || json.success === "false") throw new Error(json.message || "Network error");
+          if (!res.ok || json.success === "false") {
+            // Surface the actual server error so the user knows what happened.
+            const detail = json && json.message ? ` (${json.message})` : "";
+            throw Object.assign(new Error("server"), { detail });
+          }
           status.textContent = t.success;
           status.className = "form-status is-success";
           form.reset();
+          if (countrySel) countrySel.value = "+261";
           updateTicketTotal();
           syncSubjectExtra();
         } catch (err) {
-          status.textContent = t.error;
+          // Distinguish "server refused" from "couldn't reach server".
+          const isNetwork = !err || err.name === "TypeError" || err.message === "Failed to fetch";
+          const msg = isNetwork ? t.errors.network : t.errors.server;
+          status.textContent = msg + (err && err.detail ? err.detail : "");
           status.className = "form-status is-error";
         }
       } else {
@@ -667,6 +859,7 @@
         status.textContent = t.success;
         status.className = "form-status is-success";
         form.reset();
+        if (countrySel) countrySel.value = "+261";
         updateTicketTotal();
         syncSubjectExtra();
       }

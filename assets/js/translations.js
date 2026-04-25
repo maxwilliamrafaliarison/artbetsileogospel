@@ -174,10 +174,24 @@ const TRANSLATIONS = {
           { name: "Silver", price: 5000 }
         ],
         message: "Votre message",
+        country_label: "Indicatif",
+        phone_placeholder: "34 96 980 76",
         send: "Envoyer le message",
         sending: "Envoi en cours…",
         success: "Message envoyé ! Nous vous répondrons très bientôt.",
-        error: "Une erreur est survenue, merci de réessayer."
+        error: "Une erreur est survenue, merci de réessayer.",
+        required_legend: "Champs marqués d'un * sont requis.",
+        errors: {
+          name: "Veuillez entrer votre nom (au moins 2 caractères).",
+          email: "Adresse email invalide.",
+          phone: "Numéro de téléphone invalide pour ce pays.",
+          subject: "Veuillez choisir un sujet.",
+          message: "Votre message doit contenir au moins 5 caractères.",
+          empty_tickets: "Veuillez sélectionner au moins un billet.",
+          network: "Impossible d'envoyer le message. Vérifiez votre connexion ou contactez-nous directement par WhatsApp.",
+          server: "Le service d'envoi a refusé le message. Contactez-nous directement par WhatsApp ou email."
+        },
+        autoresponse: "Merci pour votre message !\n\nNous l'avons bien reçu et l'équipe Art Betsileo Gospel vous répondra très bientôt.\n\nEn attendant, n'hésitez pas à nous suivre sur Facebook ou à nous contacter directement par WhatsApp au +261 34 96 980 76.\n\n— Mandrakizay, Izahay eto foana —\nL'équipe ABG"
       },
       direct: {
         title: "Contact direct",
@@ -192,6 +206,10 @@ const TRANSLATIONS = {
       tagline: "Louer. Élever. Partager.",
       rights: "Tous droits réservés.",
       made_with: "Conçu avec foi à Fianarantsoa"
+    },
+    whatsapp: {
+      tooltip: "Discutons sur WhatsApp",
+      prefill: "Bonjour Art Betsileo Gospel ✨ J'aimerais en savoir plus sur le concert ABG × JAW'S BAND."
     }
   },
 
@@ -369,10 +387,24 @@ const TRANSLATIONS = {
           { name: "Silver", price: 5000 }
         ],
         message: "Ny hafatrao",
+        country_label: "Faritra",
+        phone_placeholder: "34 96 980 76",
         send: "Alefaso ny hafatra",
         sending: "Mandefa…",
         success: "Voaray ny hafatra ! Hamaly anao tsy ho ela izahay.",
-        error: "Misy olana, azafady, miverena indray."
+        error: "Misy olana, azafady, miverena indray.",
+        required_legend: "Ny saha misy * dia tsy maintsy fenoina.",
+        errors: {
+          name: "Ampidiro ny anaranao (farafahakeliny 2 litera).",
+          email: "Tsy mety ny adiresy mailaka.",
+          phone: "Tsy mety ny laharan-tariby ho an'ity firenena ity.",
+          subject: "Mifidiana lohahevitra.",
+          message: "Tokony hisy farafahakeliny 5 litera ny hafatra.",
+          empty_tickets: "Mifidiana farafahakeliny tapakila iray.",
+          network: "Tsy afaka mandefa hafatra. Hamarino ny fifandraisanao na antsoy mivantana ahy amin'ny WhatsApp.",
+          server: "Tsy nety ny fandefasana. Antsoy mivantana ahy amin'ny WhatsApp na mailaka."
+        },
+        autoresponse: "Misaotra anao tamin'ny hafatrao !\n\nVoaraynay izy io ary hamaly anao tsy ho ela ny ekipa Art Betsileo Gospel.\n\nMandritra izany, manaraha anay ao Facebook na antsoy mivantana izahay amin'ny WhatsApp +261 34 96 980 76.\n\n— Mandrakizay, Izahay eto foana —\nNy ekipa ABG"
       },
       direct: {
         title: "Fifandraisana mivantana",
@@ -387,6 +419,10 @@ const TRANSLATIONS = {
       tagline: "Midera. Manandratra. Mizara.",
       rights: "Voatokana ny zo rehetra.",
       made_with: "Natao tamim-pinoana tao Fianarantsoa"
+    },
+    whatsapp: {
+      tooltip: "Hifandray amin'ny WhatsApp",
+      prefill: "Salama Art Betsileo Gospel ✨ Te-hahalala bebe kokoa momba ny kaonseritra ABG × JAW'S BAND aho."
     }
   },
 
@@ -564,10 +600,24 @@ const TRANSLATIONS = {
           { name: "Silver", price: 5000 }
         ],
         message: "Your message",
+        country_label: "Country code",
+        phone_placeholder: "34 96 980 76",
         send: "Send message",
         sending: "Sending…",
         success: "Message sent! We'll get back to you very soon.",
-        error: "Something went wrong. Please try again."
+        error: "Something went wrong. Please try again.",
+        required_legend: "Fields marked with * are required.",
+        errors: {
+          name: "Please enter your name (at least 2 characters).",
+          email: "Invalid email address.",
+          phone: "Invalid phone number for this country.",
+          subject: "Please choose a subject.",
+          message: "Your message must be at least 5 characters long.",
+          empty_tickets: "Please select at least one ticket.",
+          network: "Could not send the message. Check your connection or contact us directly via WhatsApp.",
+          server: "The mail service refused the message. Contact us directly via WhatsApp or email."
+        },
+        autoresponse: "Thank you for your message!\n\nWe've received it and the Art Betsileo Gospel team will get back to you very soon.\n\nIn the meantime, feel free to follow us on Facebook or reach us directly on WhatsApp at +261 34 96 980 76.\n\n— Mandrakizay, Izahay eto foana —\nThe ABG team"
       },
       direct: {
         title: "Direct contact",
@@ -582,6 +632,10 @@ const TRANSLATIONS = {
       tagline: "Praise. Uplift. Share.",
       rights: "All rights reserved.",
       made_with: "Crafted with faith in Fianarantsoa"
+    },
+    whatsapp: {
+      tooltip: "Chat on WhatsApp",
+      prefill: "Hello Art Betsileo Gospel ✨ I'd love to learn more about the ABG × JAW'S BAND concert."
     }
   }
 };
