@@ -593,44 +593,117 @@
   const CONTACT_EMAIL = "artbetsileogospel@gmail.com";
   const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
 
-  // Collect the conditional Partenariat / Réservation panels into structured
-  // extras so we can include them in the email body sent to FormSubmit.
-  function collectFormExtras(form) {
+  // Build a structured "ticket receipt" body for the FormSubmit email.
+  // Keeps the top-level table to the essentials (Nom · Email · Téléphone ·
+  // Sujet) and packs the rich detail (tickets, partnership types, totals,
+  // user message, équipe à-faire) inside the Message field.
+  // Returns { key, summary, body } where:
+  //   key     — "tickets" / "partnership" / "" — drives the email subject
+  //   summary — short string appended to _subject (e.g. "3 billets")
+  //   body    — full Message content the team will read in the inbox
+  function buildEmailBody(form, contact, userMessage) {
     const select = form.querySelector("#c-subject");
     const key = select && select.selectedOptions[0] ? select.selectedOptions[0].dataset.key : "";
-    const out = { key, lines: [], details: {} };
+    const SEP    = "─────────────────────────────────";
+    const HEAVY  = "═════════════════════════════════";
+    const lines = [];
+    let summary = "";
 
-    if (key === "partnership") {
-      const checked = Array.from(form.querySelectorAll('input[name="partnership_type"]:checked'))
-        .map(i => oneLine(i.value));
-      if (checked.length) {
-        // Send as a single comma-joined string — FormSubmit's table template
-        // renders flat strings cleanly while arrays sometimes get mangled.
-        out.details["Soutien souhaité"] = checked.join(", ");
-        out.lines.push(`Soutien souhaité : ${checked.join(" · ")}`);
-      }
-    }
+    // Header — the show, always shown.
+    lines.push(HEAVY);
+    lines.push("ART BETSILEO GOSPEL × JAW'S BAND");
+    lines.push("12 juillet 2026 · 19h00");
+    lines.push("Fianarantsoa · Madagascar");
+    lines.push(HEAVY);
+    lines.push("");
 
     if (key === "tickets") {
       const picks = [];
       let total = 0;
+      let count = 0;
       form.querySelectorAll('.menu-list__qty').forEach(inp => {
         const qty = Math.max(0, parseInt(inp.value, 10) || 0);
         const price = parseInt(inp.dataset.tierPrice, 10) || 0;
         const name = oneLine(inp.dataset.tierName || "");
         if (qty > 0) {
-          picks.push(`${qty} × ${name} (${formatAr(price * qty)})`);
-          total += qty * price;
+          picks.push({ qty, name, line: price * qty });
+          total += price * qty;
+          count += qty;
         }
       });
-      if (picks.length) {
-        out.details["Billets"] = picks.join(", ");
-        out.details["Total estimé"] = formatAr(total);
-        out.lines.push(`Billets : ${picks.join(" + ")}`);
-        out.lines.push(`Total estimé : ${formatAr(total)}`);
+      summary = count > 0 ? `${count} billet${count > 1 ? "s" : ""}` : "";
+
+      lines.push("🎟  RÉSERVATION DE BILLETS");
+      lines.push("");
+      picks.forEach(p => {
+        const left = `   ${p.qty} × ${p.name}`.padEnd(20, " ");
+        lines.push(`${left}${formatAr(p.line).padStart(13, " ")}`);
+      });
+      lines.push("   " + "─".repeat(28));
+      lines.push(`   ${"TOTAL".padEnd(17)}${formatAr(total).padStart(13, " ")}`);
+      lines.push(`   (${count} billet${count > 1 ? "s" : ""})`);
+      lines.push("");
+    } else if (key === "partnership") {
+      const checked = Array.from(form.querySelectorAll('input[name="partnership_type"]:checked'))
+        .map(i => oneLine(i.value));
+      summary = checked.length ? `${checked.length} type${checked.length > 1 ? "s" : ""} de soutien` : "";
+
+      lines.push("🤝  DEMANDE DE PARTENARIAT");
+      lines.push("");
+      if (checked.length) {
+        lines.push("   Soutien souhaité :");
+        checked.forEach(c => lines.push(`     •  ${c}`));
+      } else {
+        lines.push("   (Aucun type de soutien précisé.)");
       }
+      lines.push("");
+    } else {
+      lines.push(`📨  ${(contact.subject || "Demande").toUpperCase()}`);
+      lines.push("");
     }
-    return out;
+
+    // User's free-text message.
+    if (userMessage && userMessage.trim()) {
+      lines.push(SEP);
+      lines.push("MESSAGE DU CLIENT");
+      lines.push(SEP);
+      lines.push("");
+      lines.push(userMessage);
+      lines.push("");
+    }
+
+    // Client recap (also visible at the top as separate fields, kept here
+    // so the body alone is enough to action a reply).
+    lines.push(SEP);
+    lines.push("RÉCAP CLIENT");
+    lines.push(SEP);
+    lines.push(`  Nom        : ${contact.name}`);
+    lines.push(`  Email      : ${contact.email}`);
+    lines.push(`  Téléphone  : ${contact.phone || "—"}`);
+    lines.push("");
+
+    // À-faire bloc — small ops checklist for the team.
+    lines.push(SEP);
+    lines.push("À FAIRE — ÉQUIPE ABG");
+    lines.push(SEP);
+    if (key === "tickets") {
+      lines.push("  ☐  Confirmer la réservation au client");
+      lines.push("  ☐  Préparer les billets demandés");
+      lines.push("  ☐  Envoyer les modalités de retrait / paiement");
+    } else if (key === "partnership") {
+      lines.push("  ☐  Prendre contact sous 48 h");
+      lines.push("  ☐  Programmer un rendez-vous (visio ou présentiel)");
+      lines.push("  ☐  Préparer le dossier partenariat adapté");
+    } else {
+      lines.push("  ☐  Lire la demande");
+      lines.push("  ☐  Répondre sous 48 h");
+    }
+    lines.push("");
+    lines.push(HEAVY);
+    lines.push("Mandrakizay, Izahay eto foana — I Tantara 16:34");
+    lines.push(HEAVY);
+
+    return { key, summary, body: lines.join("\n") };
   }
 
   // Per-field validators. Returns "" when valid, error message key otherwise.
@@ -794,12 +867,19 @@
         message: String(form.querySelector("#c-message").value || "").trim()
       };
 
-      // Pull conditional extras (partnership types, ticket quantities) and
-      // prepend them to the message so they always reach the inbox.
-      const extras = collectFormExtras(form);
-      const enrichedMessage = extras.lines.length
-        ? `${extras.lines.join("\n")}\n\n— — —\n\n${data.message}`
-        : data.message;
+      // Build the full email body (concert header, ticket recap or
+      // partnership types, user message, client recap, team to-do).
+      const built = buildEmailBody(form, data, data.message);
+
+      // Subject line — concise + actionable in inbox previews.
+      // Tickets   →  "[ABG] 🎟 3 billets — Réservation par Max William RAFALIARISON"
+      // Partners  →  "[ABG] 🤝 Partenariat — Max William RAFALIARISON"
+      // Other     →  "[ABG] [Sujet] — Max William RAFALIARISON"
+      const SUBJECT_PREFIX = built.key === "tickets"
+        ? `🎟 ${built.summary || data.subject}`
+        : built.key === "partnership"
+          ? "🤝 Partenariat"
+          : data.subject;
 
       btn.disabled = true;
       status.textContent = t.sending;
@@ -807,18 +887,18 @@
 
       if (FORM_ENDPOINT) {
         try {
-          // Build a clean JSON payload. Keys are intentionally in French —
-          // FormSubmit's "table" template uses them verbatim as row labels,
-          // so the email lands looking like a polished receipt.
+          // Top-level JSON keys = rows in FormSubmit's table template, so we
+          // keep them to the essentials. The rich detail (tickets, totals,
+          // checklist) lives in the Message field, which renders as a single
+          // monospaced-ish block — perfect for a "ticket receipt" feel.
           const payload = {
             "Nom": data.name,
             "Email": data.email,
             "Téléphone": data.phone || "—",
             "Sujet": data.subject,
-            ...extras.details,
-            "Message": enrichedMessage,
+            "Message": built.body,
             // FormSubmit reserved keys
-            _subject: `[ABG] ${data.subject} — ${data.name}`,
+            _subject: `[ABG] ${SUBJECT_PREFIX} — ${data.name}`,
             _replyto: data.email,
             _template: "table",
             _captcha: "false",
@@ -850,10 +930,8 @@
         }
       } else {
         // Mailto fallback — all header parts are already CR/LF-stripped above.
-        const subject = encodeURIComponent(`[${data.subject}] — ${data.name}`);
-        const body = encodeURIComponent(
-          `Nom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || "—"}\nSujet: ${data.subject}\n\n${enrichedMessage}`
-        );
+        const subject = encodeURIComponent(`[ABG] ${SUBJECT_PREFIX} — ${data.name}`);
+        const body = encodeURIComponent(built.body);
         window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
         status.textContent = t.success;
         status.className = "form-status is-success";
