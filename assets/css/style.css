@@ -920,6 +920,215 @@ a { color: inherit; text-decoration: none; }
 }
 .contact__socials a:hover { color: var(--gold); border-color: rgba(255,180,20,.4); transform: translateY(-2px); }
 
+/* ============================================================
+   MENU LIST — modern restaurant-menu pattern
+   Used for ticket prices and the partners' budget breakdown.
+   ============================================================ */
+.menu-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.menu-list__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.menu-list__item:last-child { border-bottom: 0; }
+.menu-list__name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: -0.005em;
+  color: var(--ink-0);
+}
+.menu-list__leader {
+  align-self: end;
+  height: 0;
+  border-bottom: 1px dotted rgba(255, 180, 20, .28);
+  transform: translateY(-5px);
+}
+.menu-list__price {
+  font-size: 13.5px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.menu-list--with-qty .menu-list__item { grid-template-columns: auto 1fr auto auto; }
+.menu-list__qty {
+  width: 64px;
+  padding: 8px 10px;
+  text-align: center;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--ink-0);
+  font-family: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color .25s var(--ease), background .25s var(--ease);
+  -moz-appearance: textfield;
+}
+.menu-list__qty::-webkit-outer-spin-button,
+.menu-list__qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.menu-list__qty:focus {
+  outline: 0;
+  border-color: rgba(255, 180, 20, .45);
+  background: rgba(255,255,255,.07);
+  box-shadow: 0 0 0 4px rgba(255, 180, 20, .10);
+}
+
+/* ============================================================
+   CONTACT FORM — conditional extras (Partenariat / Billets)
+   ============================================================ */
+.field-extra {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 18px 16px;
+  background: rgba(255, 180, 20, 0.035);
+  border: 1px solid rgba(255, 180, 20, .14);
+  border-radius: 16px;
+  animation: extraIn .4s var(--ease) both;
+}
+.field-extra[hidden] { display: none; }
+.field-extra__panel[hidden] { display: none; }
+.field-extra__head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px;
+  margin-bottom: 4px;
+}
+.field-extra__label {
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-2); font-weight: 600;
+}
+.field-extra__hint {
+  font-family: var(--font-display); font-style: italic;
+  font-size: 13px; color: var(--ink-3);
+}
+@keyframes extraIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Pill-style multi-select checkboxes */
+.check-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.check-pill {
+  position: relative;
+  display: inline-flex; align-items: center;
+  padding: 9px 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease), transform .25s var(--ease);
+  font-size: 13px;
+  color: var(--ink-2);
+  user-select: none;
+}
+.check-pill input { position: absolute; opacity: 0; pointer-events: none; }
+.check-pill:hover { border-color: rgba(255, 180, 20, .25); color: var(--ink-0); transform: translateY(-1px); }
+.check-pill:has(input:checked) {
+  background: rgba(255, 180, 20, .14);
+  border-color: rgba(255, 180, 20, .50);
+  color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255, 180, 20, .06);
+}
+.check-pill input:focus-visible ~ .check-pill__label {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--gold);
+}
+
+/* Tickets total */
+.ticket-total {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-top: 4px; padding-top: 12px;
+  border-top: 1px solid rgba(255, 180, 20, .18);
+}
+.ticket-total__label {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+}
+.ticket-total__value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+
+/* ============================================================
+   PARTNERS — discreet, luxurious budget reveal
+   ============================================================ */
+.budget-reveal {
+  display: inline-block;
+  margin: 18px auto 0;
+  text-align: left;
+}
+.budget-reveal__summary {
+  list-style: none;
+  display: inline-flex; align-items: center; gap: 14px;
+  padding: 11px 20px;
+  border: 1px solid rgba(255, 180, 20, .22);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 180, 20, .06), rgba(255, 180, 20, .02));
+  cursor: pointer;
+  transition: border-color .35s var(--ease), background .35s var(--ease), transform .35s var(--ease), box-shadow .35s var(--ease);
+}
+.budget-reveal__summary::-webkit-details-marker { display: none; }
+.budget-reveal__summary::marker { content: ""; }
+.budget-reveal__summary:hover {
+  border-color: rgba(255, 180, 20, .55);
+  background: linear-gradient(135deg, rgba(255, 180, 20, .12), rgba(255, 180, 20, .04));
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px -12px rgba(255, 180, 20, .35);
+}
+.budget-reveal__intro {
+  font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+}
+.budget-reveal__amount {
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+.budget-reveal__chevron {
+  width: 11px; height: 8px;
+  color: var(--gold);
+  transition: transform .4s var(--ease);
+  flex-shrink: 0;
+}
+.budget-reveal[open] .budget-reveal__chevron { transform: rotate(180deg); }
+
+.budget-reveal__panel {
+  margin-top: 18px;
+  padding: 22px clamp(20px, 3vw, 30px);
+  max-width: 520px;
+  animation: budgetIn .5s var(--ease) both;
+}
+@keyframes budgetIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.budget-reveal__title {
+  display: block;
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 620px) {
+  .budget-reveal { display: block; text-align: center; }
+  .budget-reveal__summary { width: 100%; justify-content: space-between; padding: 12px 16px; }
+  .budget-reveal__intro { font-size: 10.5px; }
+  .budget-reveal__amount { font-size: 16px; }
+  .menu-list__name { font-size: 15px; }
+  .menu-list__price { font-size: 13px; }
+  .check-pill { font-size: 12.5px; padding: 8px 12px; }
+}
+
 /* -------- FOOTER -------- */
 .footer {
   padding: 48px var(--gutter) 32px;

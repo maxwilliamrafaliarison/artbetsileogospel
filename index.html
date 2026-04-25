@@ -386,6 +386,19 @@
           <p class="section__lead" data-i18n="partners.subtitle">
             Le partenariat, c'est avant tout une main tendue.
           </p>
+          <details class="budget-reveal" id="budgetReveal">
+            <summary class="budget-reveal__summary">
+              <span class="budget-reveal__intro" data-i18n="partners.budget_intro">Budget total ABG × JAW'S BAND</span>
+              <span class="budget-reveal__amount">10&thinsp;000&thinsp;000&nbsp;Ar</span>
+              <svg class="budget-reveal__chevron" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </summary>
+            <div class="budget-reveal__panel glass">
+              <span class="budget-reveal__title" data-i18n="partners.budget_title">Budget prévisionnel</span>
+              <ul class="menu-list" id="budgetList"></ul>
+            </div>
+          </details>
         </div>
 
         <div class="partners__grid">
@@ -440,6 +453,26 @@
             <div class="field">
               <label for="c-subject" data-i18n="contact.form.subject">Sujet</label>
               <select id="c-subject" name="subject" required></select>
+            </div>
+
+            <div class="field-extra" id="subjectExtra" hidden>
+              <div class="field-extra__panel" data-extra-for="partnership" hidden>
+                <div class="field-extra__head">
+                  <span class="field-extra__label" data-i18n="contact.form.partnership_title">Précisez votre soutien</span>
+                  <span class="field-extra__hint" data-i18n="contact.form.partnership_hint">Plusieurs choix possibles</span>
+                </div>
+                <div class="check-grid" id="partnershipChecks"></div>
+              </div>
+              <div class="field-extra__panel" data-extra-for="tickets" hidden>
+                <div class="field-extra__head">
+                  <span class="field-extra__label" data-i18n="contact.form.tickets_title">Sélectionnez vos billets</span>
+                </div>
+                <ul class="menu-list menu-list--with-qty" id="ticketMenu"></ul>
+                <div class="ticket-total">
+                  <span class="ticket-total__label" data-i18n="contact.form.tickets_total">Total estimé</span>
+                  <span class="ticket-total__value" id="ticketTotal">0&nbsp;Ar</span>
+                </div>
+              </div>
             </div>
 
             <div class="field">

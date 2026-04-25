@@ -99,7 +99,20 @@ const TRANSLATIONS = {
     partners: {
       eyebrow: "Marchons ensemble",
       title: "Devenir partenaire",
-      subtitle: "Le partenariat, c'est avant tout une main tendue. Notre budget pour ABG × JAW'S BAND est estimé à 10 000 000 Ar.",
+      subtitle: "Le partenariat, c'est avant tout une main tendue.",
+      budget_intro: "Budget total ABG × JAW'S BAND",
+      budget_cta: "Voir le détail",
+      budget_title: "Budget prévisionnel",
+      budget_items: [
+        { label: "Cachet", amount: 1600000 },
+        { label: "Frais de transport", amount: 3600000 },
+        { label: "Restauration", amount: 1000000 },
+        { label: "Hébergement", amount: 800000 },
+        { label: "Location du lieu", amount: 500000 },
+        { label: "Promotion & Publicité", amount: 1200000 },
+        { label: "Frais divers", amount: 500000 },
+        { label: "Sonorisation", amount: 800000 }
+      ],
       needs_title: "Nous avons besoin de vous pour :",
       needs: [
         {
@@ -142,6 +155,24 @@ const TRANSLATIONS = {
         phone: "Téléphone (optionnel)",
         subject: "Sujet",
         subject_options: ["Demande d'information", "Partenariat", "Réservation de billets", "Invitation à un événement", "Autre"],
+        partnership_title: "Précisez votre soutien",
+        partnership_hint: "Plusieurs choix possibles",
+        partnership_options: [
+          "Transport (artiste, Tam Tam, déplace en ville)",
+          "Restauration",
+          "Hébergement",
+          "Sonorisation",
+          "Support visuel (affiche, ticket, banderole, bâche)",
+          "Communication média",
+          "Autres"
+        ],
+        tickets_title: "Sélectionnez vos billets",
+        tickets_total: "Total estimé",
+        tickets_tiers: [
+          { name: "VIP", price: 40000 },
+          { name: "Gold", price: 20000 },
+          { name: "Silver", price: 5000 }
+        ],
         message: "Votre message",
         send: "Envoyer le message",
         sending: "Envoi en cours…",
@@ -263,7 +294,20 @@ const TRANSLATIONS = {
     partners: {
       eyebrow: "Hiara-mandroso",
       title: "Ho mpiara-miombon'antoka",
-      subtitle: "Ny fiaraha-miasa dia tanana atolotra, voalohany indrindra. Ny tetibolanay ho an'ny ABG × JAW'S BAND dia 10 000 000 Ar.",
+      subtitle: "Ny fiaraha-miasa dia tanana atolotra, voalohany indrindra.",
+      budget_intro: "Tetibola manontolo ABG × JAW'S BAND",
+      budget_cta: "Hijery ny antsipiriany",
+      budget_title: "Tetibola hetahetaina",
+      budget_items: [
+        { label: "Karama mpanakanto", amount: 1600000 },
+        { label: "Saran-dalana", amount: 3600000 },
+        { label: "Sakafo", amount: 1000000 },
+        { label: "Fonenana", amount: 800000 },
+        { label: "Hofan'ny toerana", amount: 500000 },
+        { label: "Fampielezana sy doka", amount: 1200000 },
+        { label: "Lany samihafa", amount: 500000 },
+        { label: "Fanamafisam-peo", amount: 800000 }
+      ],
       needs_title: "Mila anareo izahay mba :",
       needs: [
         {
@@ -306,6 +350,24 @@ const TRANSLATIONS = {
         phone: "Finday (tsy voatery)",
         subject: "Lohahevitra",
         subject_options: ["Fangatahana fanazavana", "Fiaraha-miasa", "Famandrihana tapakila", "Fanasana amin'ny hetsika", "Hafa"],
+        partnership_title: "Lazao ny fanohanana",
+        partnership_hint: "Azo safidiana maromaro",
+        partnership_options: [
+          "Fitaterana (mpanakanto, Tam Tam, fivezivezena)",
+          "Sakafo",
+          "Fonenana",
+          "Fanamafisam-peo",
+          "Sary fampielezana (peta-drindrina, tapakila, banderole, bâche)",
+          "Fifandraisana an-tserasera",
+          "Hafa"
+        ],
+        tickets_title: "Safidio ny tapakilanao",
+        tickets_total: "Vinavina manontolo",
+        tickets_tiers: [
+          { name: "VIP", price: 40000 },
+          { name: "Gold", price: 20000 },
+          { name: "Silver", price: 5000 }
+        ],
         message: "Ny hafatrao",
         send: "Alefaso ny hafatra",
         sending: "Mandefa…",
@@ -427,7 +489,20 @@ const TRANSLATIONS = {
     partners: {
       eyebrow: "Walk with us",
       title: "Become a partner",
-      subtitle: "A partnership is, above all, a hand extended. Our budget for ABG × JAW'S BAND is estimated at 10 000 000 Ar.",
+      subtitle: "A partnership is, above all, a hand extended.",
+      budget_intro: "Total budget ABG × JAW'S BAND",
+      budget_cta: "See the breakdown",
+      budget_title: "Estimated budget",
+      budget_items: [
+        { label: "Artist fee", amount: 1600000 },
+        { label: "Transport costs", amount: 3600000 },
+        { label: "Catering", amount: 1000000 },
+        { label: "Accommodation", amount: 800000 },
+        { label: "Venue rental", amount: 500000 },
+        { label: "Promotion & advertising", amount: 1200000 },
+        { label: "Miscellaneous", amount: 500000 },
+        { label: "Sound system", amount: 800000 }
+      ],
       needs_title: "We need you to:",
       needs: [
         {
@@ -470,6 +545,24 @@ const TRANSLATIONS = {
         phone: "Phone (optional)",
         subject: "Subject",
         subject_options: ["General inquiry", "Partnership", "Ticket booking", "Event invitation", "Other"],
+        partnership_title: "Tell us how you'd like to help",
+        partnership_hint: "Pick all that apply",
+        partnership_options: [
+          "Transport (artists, Tam Tam, in-town transfers)",
+          "Catering",
+          "Accommodation",
+          "Sound system",
+          "Visual material (posters, tickets, banners)",
+          "Media communication",
+          "Other"
+        ],
+        tickets_title: "Pick your tickets",
+        tickets_total: "Estimated total",
+        tickets_tiers: [
+          { name: "VIP", price: 40000 },
+          { name: "Gold", price: 20000 },
+          { name: "Silver", price: 5000 }
+        ],
         message: "Your message",
         send: "Send message",
         sending: "Sending…",

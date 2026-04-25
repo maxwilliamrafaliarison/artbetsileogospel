@@ -115,7 +115,10 @@
     renderReasons(t.event.reasons);
     renderVideos();
     renderPartners(t.partners.needs, t.partners.offers);
+    renderBudget(t.partners.budget_items);
     renderSubjects(t.contact.form.subject_options);
+    renderPartnershipChecks(t.contact.form.partnership_options);
+    renderTicketMenu(t.contact.form.tickets_tiers);
   }
 
   /* --------------------------------------------------------------
@@ -303,10 +306,101 @@
     }
   }
 
+  // Stable keys for the subject options — index-based so language switches
+  // never break the conditional panels below the select.
+  const SUBJECT_KEYS = ["info", "partnership", "tickets", "invitation", "other"];
+
+  // Format an integer Ariary amount with thin spaces (10000 → "10 000 Ar").
+  // Uses a U+202F NARROW NO-BREAK SPACE so the price never wraps mid-number.
+  function formatAr(n) {
+    return Math.round(Number(n) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Ar";
+  }
+
   function renderSubjects(options) {
     const select = document.getElementById("c-subject");
     if (!select) return;
-    select.innerHTML = options.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
+    const prevIdx = Math.max(0, select.selectedIndex);
+    select.innerHTML = options
+      .map((o, i) => `<option value="${esc(o)}" data-key="${SUBJECT_KEYS[i] || ""}">${esc(o)}</option>`)
+      .join("");
+    select.selectedIndex = Math.min(prevIdx, options.length - 1);
+    syncSubjectExtra();
+  }
+
+  function syncSubjectExtra() {
+    const select = document.getElementById("c-subject");
+    const wrap = document.getElementById("subjectExtra");
+    if (!select || !wrap) return;
+    const opt = select.selectedOptions[0];
+    const key = opt ? opt.dataset.key : "";
+    let anyVisible = false;
+    wrap.querySelectorAll("[data-extra-for]").forEach(panel => {
+      const show = panel.getAttribute("data-extra-for") === key;
+      panel.hidden = !show;
+      if (show) anyVisible = true;
+    });
+    wrap.hidden = !anyVisible;
+  }
+
+  function renderPartnershipChecks(options) {
+    const host = document.getElementById("partnershipChecks");
+    if (!host || !Array.isArray(options)) return;
+    host.innerHTML = options.map(o => `
+      <label class="check-pill">
+        <input type="checkbox" name="partnership_type" value="${esc(o)}">
+        <span class="check-pill__label">${esc(o)}</span>
+      </label>
+    `).join("");
+  }
+
+  function renderTicketMenu(tiers) {
+    const host = document.getElementById("ticketMenu");
+    if (!host || !Array.isArray(tiers)) return;
+    host.innerHTML = tiers.map((tier, i) => `
+      <li class="menu-list__item">
+        <span class="menu-list__name">${esc(tier.name)}</span>
+        <span class="menu-list__leader" aria-hidden="true"></span>
+        <span class="menu-list__price">${esc(formatAr(tier.price))}</span>
+        <input
+          class="menu-list__qty"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          max="50"
+          step="1"
+          value="0"
+          name="ticket_${i}"
+          data-tier-name="${esc(tier.name)}"
+          data-tier-price="${tier.price}"
+          aria-label="${esc(tier.name)}">
+      </li>
+    `).join("");
+    updateTicketTotal();
+  }
+
+  function updateTicketTotal() {
+    const host = document.getElementById("ticketMenu");
+    const out = document.getElementById("ticketTotal");
+    if (!host || !out) return;
+    let total = 0;
+    host.querySelectorAll(".menu-list__qty").forEach(inp => {
+      const qty = Math.max(0, parseInt(inp.value, 10) || 0);
+      const price = parseInt(inp.dataset.tierPrice, 10) || 0;
+      total += qty * price;
+    });
+    out.textContent = formatAr(total);
+  }
+
+  function renderBudget(items) {
+    const host = document.getElementById("budgetList");
+    if (!host || !Array.isArray(items)) return;
+    host.innerHTML = items.map(it => `
+      <li class="menu-list__item">
+        <span class="menu-list__name">${esc(it.label)}</span>
+        <span class="menu-list__leader" aria-hidden="true"></span>
+        <span class="menu-list__price">${esc(formatAr(it.amount))}</span>
+      </li>
+    `).join("");
   }
 
   /* --------------------------------------------------------------
@@ -435,11 +529,60 @@
   const CONTACT_EMAIL = "artbetsileogospel@gmail.com";
   const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
 
+  // Collect the conditional Partenariat / Réservation panels into structured
+  // extras so we can include them in the email body sent to FormSubmit.
+  function collectFormExtras(form) {
+    const select = form.querySelector("#c-subject");
+    const key = select && select.selectedOptions[0] ? select.selectedOptions[0].dataset.key : "";
+    const out = { key, lines: [], details: {} };
+
+    if (key === "partnership") {
+      const checked = Array.from(form.querySelectorAll('input[name="partnership_type"]:checked'))
+        .map(i => oneLine(i.value));
+      if (checked.length) {
+        out.details.partnership_types = checked;
+        out.lines.push(`Soutien souhaité : ${checked.join(" · ")}`);
+      }
+    }
+
+    if (key === "tickets") {
+      const picks = [];
+      let total = 0;
+      form.querySelectorAll('.menu-list__qty').forEach(inp => {
+        const qty = Math.max(0, parseInt(inp.value, 10) || 0);
+        const price = parseInt(inp.dataset.tierPrice, 10) || 0;
+        const name = oneLine(inp.dataset.tierName || "");
+        if (qty > 0) {
+          picks.push(`${qty} × ${name} (${formatAr(price * qty)})`);
+          total += qty * price;
+        }
+      });
+      if (picks.length) {
+        out.details.ticket_selection = picks;
+        out.details.ticket_total = formatAr(total);
+        out.lines.push(`Billets : ${picks.join(" + ")}`);
+        out.lines.push(`Total estimé : ${formatAr(total)}`);
+      }
+    }
+    return out;
+  }
+
   function initContactForm() {
     const form = document.getElementById("contactForm");
     const status = document.getElementById("formStatus");
     const btn = document.getElementById("submitBtn");
     if (!form) return;
+
+    // Toggle the conditional Partenariat / Réservation panel on subject change.
+    const subjectSelect = document.getElementById("c-subject");
+    if (subjectSelect) subjectSelect.addEventListener("change", syncSubjectExtra);
+
+    // Live total update for ticket quantity inputs (event delegation so it
+    // survives language switches that re-render the menu).
+    const ticketHost = document.getElementById("ticketMenu");
+    if (ticketHost) ticketHost.addEventListener("input", e => {
+      if (e.target.classList.contains("menu-list__qty")) updateTicketTotal();
+    });
 
     form.addEventListener("submit", async e => {
       e.preventDefault();
@@ -463,6 +606,14 @@
         subject: oneLine(raw.subject || "Contact"),
         message: String(raw.message || "").trim()
       };
+
+      // Pull conditional extras (partnership types, ticket quantities) and
+      // prepend them to the message so they always reach the inbox.
+      const extras = collectFormExtras(form);
+      const enrichedMessage = extras.lines.length
+        ? `${extras.lines.join("\n")}\n\n— — —\n\n${data.message}`
+        : data.message;
+
       btn.disabled = true;
       status.textContent = t.sending;
       status.className = "form-status";
@@ -476,7 +627,8 @@
               name: data.name,
               email: data.email,
               phone: data.phone || "—",
-              message: data.message,
+              message: enrichedMessage,
+              ...extras.details,
               _subject: `[ABG] ${data.subject} — ${data.name}`,
               _replyto: data.email,
               _template: "table",
@@ -488,6 +640,8 @@
           status.textContent = t.success;
           status.className = "form-status is-success";
           form.reset();
+          updateTicketTotal();
+          syncSubjectExtra();
         } catch (err) {
           status.textContent = t.error;
           status.className = "form-status is-error";
@@ -496,12 +650,14 @@
         // Mailto fallback — all header parts are already CR/LF-stripped above.
         const subject = encodeURIComponent(`[${data.subject}] — ${data.name}`);
         const body = encodeURIComponent(
-          `Nom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || "—"}\nSujet: ${data.subject}\n\n${data.message}`
+          `Nom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || "—"}\nSujet: ${data.subject}\n\n${enrichedMessage}`
         );
         window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
         status.textContent = t.success;
         status.className = "form-status is-success";
         form.reset();
+        updateTicketTotal();
+        syncSubjectExtra();
       }
       btn.disabled = false;
     });
